@@ -32,7 +32,8 @@ var api = new ParseServer({
     passwordResetTemplateId: 'Hi, \n\nYou requested to reset your password for click here. {{var: link}}',
 
   }
-}
+},
+publicServerURL: process.env.SERVER_URL || 'http://localhost:1337/parse'
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
