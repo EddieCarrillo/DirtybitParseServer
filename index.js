@@ -27,7 +27,11 @@ var api = new ParseServer({
     fromEmail: 'edcarril@ucsd.edu',
     fromName: 'Agile By DirtyBit',
 
+    verificationEmailSubject: 'Verify your email',
+    verificationEmailTextPart: 'Hi, \n\n\ You are being asked to confirm you email!\n{{var:link}}'
+
     //Params for resetting the password emails
+
 
     passwordResetSubject: '[PASSWORD RESET]',
     passwordResetTemplateId: 'Hi, \n\nYou requested to reset your password for click here. {{var: link}}',
@@ -53,6 +57,8 @@ app.use(mountPath, api);
 app.get('/', function(req, res) {
   res.status(200).send('I dream of being a website.  Please star the parse-server repo on GitHub!');
 });
+
+
 
 // // There will be a test page available on the /test path of your server url
 // // Remove this before launching your app
