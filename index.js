@@ -28,7 +28,7 @@ var api = new ParseServer({
     fromName: 'Agile By DirtyBit',
 
     verificationEmailSubject: 'Verify your email',
-    verificationEmailTextPart: 'Hi, \n\n\ You are being asked to confirm you email!\n{{var:link}}'
+    verificationEmailTextPart: 'Hi, \n\n\ You are being asked to confirm you email!\n{{var:link}}',
 
     //Params for resetting the password emails
 
