@@ -4,6 +4,18 @@
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
+var _ = require('lodash')
+
+var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC
+var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE
+const mailjet = require('node-mailjet').connect(publicMailjetAPIKey, privateMailjetAPIKey)
+
+
+
+
+
+
+
 
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
 
@@ -57,6 +69,49 @@ app.use(mountPath, api);
 app.get('/', function(req, res) {
   res.status(200).send('I dream of being a website.  Please star the parse-server repo on GitHub!');
 });
+
+app.post('/email', function(req, res){
+
+  var sender = Mailjet.post('sender')
+
+  //Expecting json object with {message, subject, recipients}
+
+
+var emailData = {
+  "FromEmail": "edcarril@ucsd.edu",
+  "FromName": "AGILITY",
+  "Subject": req.body.["Subject"],
+  "Recipients": req.body.recipients,
+  "Text-part": req.body.message
+}
+
+var test = {
+  {
+    "FromEmail": "edcarril@ucsd.edu",
+    "FromName": "AGILITY",
+    "Subject": "RandomSubject",
+    "Recipients": ["edcarril@ucsd.edu", "mohaztec13@gmail.com"],
+    "Text-part": "This is a test from parse server"
+  }
+}
+
+  var subject = req.body["Subject"]
+  var message = req.body["Text-part"]
+  var to = req.body["Recipients"]
+
+  sender.request(test)
+  .then(function(result){
+    var response = result.response
+    var body = result.body
+    res.status(200).send({ok: "ok"});
+  })
+  .catch(function(reason){
+    var statusCode = reason.statusCode
+    res.status(statusCode).send({error: 'Could not send mail for: ', reason})
+  })
+})
+
+}
 
 
 
