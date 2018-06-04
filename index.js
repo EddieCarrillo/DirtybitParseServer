@@ -29,33 +29,70 @@ if (!databaseUri) {
 }
 
 var api = new ParseServer({
+
+  // Your apps name. This will appear in the subject and body of the emails that are sent.
+  appName: "Agility",
   databaseURI: databaseUri || 'mongodb://localhost:27017/dev',
-  // cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
-  appId: process.env.APP_ID || 'myAppId',
-  appName: 'Agile',
-  masterKey: process.env.MASTER_KEY || 'MASTER_KEY', //Add your master key here. Keep it secret!
-  serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',  // Don't forget to change to https if needed
+  appId: process.env.APP_ID || "myAppId",
+  masterKey: process.env.MASTER_KEY || '',
+  serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',
+
+  // The options for the email adapter
   emailAdapter: {
-  module: 'parse-server-mailjet-adapter',
-  options: {
-    apiKey: 'a2659f20a805f6794f7604eb5d578ea1',
-    apiSecret: 'a2659f20a805f6794f7604eb5d578ea1',
-    apiErrorEmail:'edcarril@ucsd.edu',
-    fromEmail: 'edcarril@ucsd.edu',
-    fromName: 'Agile By DirtyBit',
+    module: "parse-server-mailjet-adapter",
+    options: {
+      // The API key from your Mailjet account
+      apiKey: publicMailjetAPIKey,
+      // The API secret from your Mailjet account
+      apiSecret: privateMailjetAPIKey,
+      // The email to send Mailjet templates bug reports to
+      apiErrorEmail: "edcarril@ucsd.edu",
+      // The email address that your emails come from
+      fromEmail: "edcarril@ucsd.edu",
+      // The name do display as the sender (optional)
+      fromName: "Agility",
+      //
+      // Parameters for the reset password emails
+      //
+      // The subject of the email to reset the password
+      passwordResetSubject: "Reset My Password",
+      // Set it to use a template with your Mailjet account.
+      // This is the id of the template to use.
+    //  passwordResetTemplateId: 12345,
+      // If you do not use template, you can set the plain text part here
+      passwordResetTextPart: "Hi,\n\nYou requested to reset your password for {{var:appName}}.\n\nPlease, click here to set a new password: {{var:link}}",
+      // If you do not use template, you can set the html part here
+    //  passwordResetHtmlPart: "Hi,<p>You requested to reset your password for <b>{{var:appName}}</b>.</p><p>Please, click here to set a new password: {{var:link}}</p>",
+      //
+      // Parameters for the email verification emails
+      //
+      // The subject of the email to reset the password
+      verificationEmailSubject: "Verify your email",
+      // Set it to use a template with your Mailjet account.
+      // This is the id of the template to use.
+    //  verificationEmailTemplateId: 67890,
+      // If you do not use template, you can set the plain text part here
+      verificationEmailTextPart: "Hi,\n\nYou are being asked to confirm the e-mail address {{var:email}} with {{var:appName}}\n\nClick here to confirm it: {{var:link}}",
+      // If you do not use template, you can set the html part here
+  //    verificationEmailHtmlPart: "Hi,<p>You are being asked to confirm the e-mail address {{var:email}} with <b>{{var:appName}}</b></p><p>Click here to confirm it: {{var:link}}</p>",
 
-    verificationEmailSubject: 'Verify your email',
-    verificationEmailTextPart: 'Hi, \n\n\ You are being asked to confirm you email!\n{{var:link}}',
+      // Optional: A callback function that returns the options used for sending
+      // verification and password reset emails. The returned options are merged
+      // with this options object.
+      // If needed, this function can also return a promise for an options object.
+      getIndividualOptions: function(targetOpts) {
+        var toMail = targetOpts.to || (targetOpts.user && targetOpts.user.get("email"));
+        if (toMail === "queen@buckingham.palace") {
+          return {
+            passwordResetSubject: "Please reset your password your Highness"
+          }
+        }
+        return {}
+      }
+    }
+  },
+  publicServerURL:process.env.SERVER_URL || 'http://localhost:1337/parse'
 
-    //Params for resetting the password emails
-
-
-    passwordResetSubject: '[PASSWORD RESET]',
-    passwordResetTemplateId: 'Hi, \n\nYou requested to reset your password for click here. {{var: link}}',
-
-  }
-},
-publicServerURL: process.env.SERVER_URL || 'http://localhost:1337/parse'
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
