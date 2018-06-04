@@ -8,9 +8,10 @@ var _ = require('lodash')
 var bodyparser = require('body-parser')
 
 
-var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC || 'a2659f20a805f6794f7604eb5d578ea1'
-var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE || 'e762b238339f73c13e3f837ed0bb75a4'
+var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC ||
+var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE ||
 var mailjet = require('node-mailjet').connect(publicMailjetAPIKey, privateMailjetAPIKey)
+var MAILJET_SIGNUP = 410213
 
 
 
@@ -74,32 +75,80 @@ app.get('/', function(req, res) {
   res.status(200).send('I dream of being a website.  Please star the parse-server repo on GitHub!');
 });
 
+
+function createTemplateBody(variables,templateId, emailData){
+  return _.merge(emailData, {
+    TemplateLanguage: true,
+    Variables: variables,
+    TemplateID: templateId
+  })
+}
+
 app.post('/email', function(req, res){
 
-var to = req.body.recipients
-console.log("to: ", to)
+  var type = req.body.type
+  console.log("type: ", type)
+  if (type == "signup"){
+    mailjet
+ .post("send", {'version': 'v3.1'})
+ .request({
+   "Messages":[
+     {
+       "From": {
+         "Email": "edcarril@ucsd.edu",
+         "Name": "Agility"
+       },
+       "To": [
+         {
+           "Email": "edcarril@ucsd.edu",
+           "Name": "eddie"
+         }
+       ],
+       "TemplateID": 410213,
+       "TemplateLanguage": true,
+       "Subject": "Signup",
+       "Variables": {
+     "username": req.body.user.username ||  "New User"
+   }
+     }
+   ]
+ })
+ .then((result) => {
+  return res.send({ok: "ok"})
+ })
+ .catch((err) => {
+   return res.status(500).send({error: err})
+ })
 
-  const request = mailjet.post("send")
-  .request({
-    FromEmail: "edcarril@ucsd.edu",
-    FromName: "Agility",
-    Subject: req.body.subject,
-    "Text-part": req.body.message,
-    Recipients: _.map(req.body.recipients, function(to){
-      return {Email: to}
+}else {
+  var to = req.body.recipients
+  console.log("to: ", to)
+
+    const request = mailjet.post("send")
+    .request({
+      FromEmail: "edcarril@ucsd.edu",
+      FromName: "Agility",
+      Subject: req.body.subject,
+      "Text-part": req.body.message,
+      Recipients: _.map(req.body.recipients, function(to){
+        return {Email: to}
+      })
     })
-  })
-  .then(function(result){
-    console.log("Good!")
-    res.json({ok: "ok"})
-  })
-  .catch(function(reason){
-      res.status(500).send({error: "Failed to send mail b/c.... ", reason})
-  })
-
-
+    .then(function(result){
+      console.log("Good!")
+      res.json({ok: "ok"})
+    })
+    .catch(function(reason){
+        res.status(500).send({error: "Failed to send mail b/c.... ", reason})
+    })
+  }
 
 })
+
+
+
+
+
 
 
 
