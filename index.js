@@ -8,6 +8,12 @@ var _ = require('lodash')
 var bodyparser = require('body-parser')
 
 
+//
+// a2659f20a805f6794f7604eb5d578ea1 public
+// e762b238339f73c13e3f837ed0bb75a4 private
+
+
+
 var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC
 var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE
 var mailjet = require('node-mailjet').connect(publicMailjetAPIKey, privateMailjetAPIKey)
@@ -98,15 +104,12 @@ app.post('/email', function(req, res){
          "Email": "edcarril@ucsd.edu",
          "Name": "Agility"
        },
-       "To": [
-         {
-           "Email": "edcarril@ucsd.edu",
-           "Name": "eddie"
-         }
-       ],
+       "To": _.map(req.body.recipients, function(to){
+         return {Email: to, name: req.body.user.username || "New User" }
+       }),
        "TemplateID": 410213,
        "TemplateLanguage": true,
-       "Subject": "Signup",
+       "Subject": "Agile Welcome",
        "Variables": {
      "username": req.body.user.username ||  "New User"
    }
