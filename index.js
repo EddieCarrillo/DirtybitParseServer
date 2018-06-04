@@ -5,10 +5,12 @@ var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
 var _ = require('lodash')
+var bodyparser = require('body-parser')
 
-var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC
-var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE
-const mailjet = require('node-mailjet').connect(publicMailjetAPIKey, privateMailjetAPIKey)
+
+var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC || 'a2659f20a805f6794f7604eb5d578ea1'
+var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE || 'e762b238339f73c13e3f837ed0bb75a4'
+var mailjet = require('node-mailjet').connect(publicMailjetAPIKey, privateMailjetAPIKey)
 
 
 
@@ -58,6 +60,8 @@ publicServerURL: process.env.SERVER_URL || 'http://localhost:1337/parse'
 
 var app = express();
 
+app.use(bodyparser.json())
+
 // Serve static assets from the /public folder
 // app.use('/public', express.static(path.join(__dirname, '/public')));
 
@@ -72,46 +76,30 @@ app.get('/', function(req, res) {
 
 app.post('/email', function(req, res){
 
-  var sender = Mailjet.post('sender')
+var to = req.body.recipients
+console.log("to: ", to)
 
-  //Expecting json object with {message, subject, recipients}
-
-
-var emailData = {
-  "FromEmail": "edcarril@ucsd.edu",
-  "FromName": "AGILITY",
-  "Subject": req.body.["Subject"],
-  "Recipients": req.body.recipients,
-  "Text-part": req.body.message
-}
-
-var test = {
-  {
-    "FromEmail": "edcarril@ucsd.edu",
-    "FromName": "AGILITY",
-    "Subject": "RandomSubject",
-    "Recipients": ["edcarril@ucsd.edu", "mohaztec13@gmail.com"],
-    "Text-part": "This is a test from parse server"
-  }
-}
-
-  var subject = req.body["Subject"]
-  var message = req.body["Text-part"]
-  var to = req.body["Recipients"]
-
-  sender.request(test)
+  const request = mailjet.post("send")
+  .request({
+    FromEmail: "edcarril@ucsd.edu",
+    FromName: "Agility",
+    Subject: req.body.subject,
+    "Text-part": req.body.message,
+    Recipients: _.map(req.body.recipients, function(to){
+      return {Email: to}
+    })
+  })
   .then(function(result){
-    var response = result.response
-    var body = result.body
-    res.status(200).send({ok: "ok"});
+    console.log("Good!")
+    res.json({ok: "ok"})
   })
   .catch(function(reason){
-    var statusCode = reason.statusCode
-    res.status(statusCode).send({error: 'Could not send mail for: ', reason})
+      res.status(500).send({error: "Failed to send mail b/c.... ", reason})
   })
-})
 
-}
+
+
+})
 
 
 
