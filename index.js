@@ -8,8 +8,8 @@ var _ = require('lodash')
 var bodyparser = require('body-parser')
 
 
-var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC ||
-var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE ||
+var publicMailjetAPIKey = process.env.MJ_APIKEY_PUBLIC
+var privateMailjetAPIKey = process.env.MJ_APIKEY_PRIVATE
 var mailjet = require('node-mailjet').connect(publicMailjetAPIKey, privateMailjetAPIKey)
 var MAILJET_SIGNUP = 410213
 
