@@ -6,6 +6,8 @@ var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
 var _ = require('lodash')
 var bodyparser = require('body-parser')
+var cors = require('cors')
+
 
 
 //
@@ -68,6 +70,7 @@ publicServerURL: process.env.SERVER_URL || 'http://localhost:1337/parse'
 var app = express();
 
 app.use(bodyparser.json())
+app.use(cors())
 
 // Serve static assets from the /public folder
 // app.use('/public', express.static(path.join(__dirname, '/public')));
